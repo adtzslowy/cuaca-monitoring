@@ -1,0 +1,63 @@
+@import 'tailwindcss';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Light mode */
+:root {
+    --background: 0 0% 98%;              /* #fafafa */
+    --card: 0 0% 100%;                  /* #ffffff */
+    --card-foreground: 0 0% 10%;        /* #1a1a1a */
+    --foreground: 0 0% 10%;             /* #1a1a1a */
+    --muted: 0 0% 52%;                  /* #858585 */
+    --muted-foreground: 0 0% 40%;       /* #666666 */
+    --border: 0 0% 90%;                 /* #e5e5e5 */
+    --input: 0 0% 95%;                  /* #f2f2f2 */
+    --ring: 213 94% 52%;                /* blue ring */
+    --radius: 0.5rem;
+    --primary: 213 94% 42%;             /* #0f63d4 */
+    --primary-foreground: 0 0% 100%;    /* #ffffff */
+}
+
+/* Dark mode — zinc palette */
+.dark {
+    --background: 240 5% 7%;            /* zinc-950 #111113 */
+    --card: 240 5% 11%;                 /* zinc-900 #18181b */
+    --card-foreground: 240 5% 96%;      /* zinc-100 #f4f4f5 */
+    --foreground: 240 5% 96%;           /* zinc-100 #f4f4f5 */
+    --muted: 240 4% 46%;               /* zinc-500 #71717a */
+    --muted-foreground: 240 5% 65%;    /* zinc-400 #a1a1aa */
+    --border: 240 4% 26%;              /* zinc-700 #3f3f46 */
+    --input: 240 4% 16%;               /* zinc-800 #27272a */
+    --ring: 213 94% 60%;
+    --primary: 213 94% 50%;
+    --primary-foreground: 0 0% 100%;
+}
+
+@theme inline {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-ui: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+    --color-card: hsl(var(--card));
+    --color-card-foreground: hsl(var(--card-foreground));
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
+    --color-ring: hsl(var(--ring));
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 1px);
+}
+
+[x-cloak] {
+    display: none !important;
+}
