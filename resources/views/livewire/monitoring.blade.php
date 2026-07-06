@@ -1,10 +1,10 @@
-<div wire:poll.15s class="flex flex-col gap-4" style="height:calc(100dvh - 4rem - 1.5rem)">
+<div wire:poll.15s class="flex flex-col gap-4 h-[calc(100vh-4rem-3rem)]">
 
-    {{-- Layout: kolom di mobile, split di md+ --}}
-    <div class="flex flex-col md:flex-row gap-4 flex-1 min-h-0">
+    {{-- Layout split --}}
+    <div class="flex gap-4 flex-1 min-h-0">
 
-        {{-- ── PETA ── --}}
-        <div class="relative rounded-xl border border-border h-64 md:h-auto md:flex-[3]" style="overflow:clip">
+        {{-- ── PETA (kiri 60%) ── --}}
+        <div class="relative flex-[3] rounded-xl border border-border overflow-hidden">
 
             {{-- Badge Windy --}}
             @if($windyKey)
@@ -32,8 +32,8 @@
             </div>
         </div>
 
-        {{-- ── PANEL KANAN ── --}}
-        <div class="md:flex-[2] flex flex-col gap-3 min-h-0 overflow-y-auto">
+        {{-- ── PANEL KANAN (40%) ── --}}
+        <div class="flex-[2] flex flex-col gap-3 min-h-0 overflow-y-auto">
 
             {{-- List stasiun --}}
             <div class="rounded-xl border border-border bg-card overflow-hidden shrink-0">
@@ -190,7 +190,6 @@ document.addEventListener('alpine:init', () => {
             document.getElementById('windy').style.display = 'block';
             document.getElementById('leaflet-map').style.display = 'none';
 
-            // libBoot.js load async internal — poll sampai windyInit tersedia
             const tryInit = () => {
                 if (typeof windyInit !== 'undefined') {
                     windyInit({
