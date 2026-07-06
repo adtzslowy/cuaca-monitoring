@@ -123,6 +123,30 @@
         <div class="mt-2" wire:ignore x-data="weatherChart(@js($chart))" x-init="init()">
             <div x-ref="chart"></div>
         </div>
+
+        {{-- Ringkasan 7 hari terakhir (agregat historis suhu) --}}
+        <div class="mt-2 grid grid-cols-4 gap-2 border-t border-border pt-4 sm:grid-cols-7">
+            @foreach ($daily as $d)
+                <div class="flex flex-col items-center gap-1.5 rounded-lg py-2 transition
+                    {{ $d['isToday'] ? 'bg-input' : 'hover:bg-input/50' }}">
+                    <span class="text-xs font-medium {{ $d['isToday'] ? 'text-foreground' : 'text-muted-foreground' }}">
+                        {{ $d['day'] }}
+                    </span>
+                    @if ($d['rain'])
+                        <x-heroicon-o-cloud class="h-6 w-6 text-sky-500" />
+                    @else
+                        <x-heroicon-o-sun class="h-6 w-6 text-amber-500" />
+                    @endif
+                    @if ($d['avg'] !== null)
+                        <div class="flex items-baseline text-xs">
+                            <span class="font-semibold text-foreground">{{ $d['avg'] }}°</span>
+                        </div>
+                    @else
+                        <span class="text-xs text-muted-foreground">—</span>
+                    @endif
+                </div>
+            @endforeach
+        </div>
     </div>
 
     {{-- Tabel data terbaru dengan paginasi --}}

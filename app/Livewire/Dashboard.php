@@ -102,16 +102,16 @@ class Dashboard extends Component
 
         // Ringkasan kondisi terkini untuk header ala widget cuaca
         $activeReadings = $latestSensors[$activeDevice?->id] ?? collect();
-        $currentValue   = $activeReadings[$this->selectedMetric]?->value;
+        $currentValue   = $activeReadings->get($this->selectedMetric)?->value;
         $isRaining      = isset($activeReadings['hujan']) && (int) $activeReadings['hujan']->value === 1;
 
         $summary = [
             'value'      => $currentValue !== null ? round((float) $currentValue, 1) : null,
             'unit'       => $meta['unit'],
             'label'      => $meta['label'],
-            'suhu'       => $activeReadings['suhu']?->value,
-            'kelembapan' => $activeReadings['kelembapan']?->value,
-            'curah'      => $activeReadings['curah_hujan']?->value,
+            'suhu'       => $activeReadings->get('suhu')?->value,
+            'kelembapan' => $activeReadings->get('kelembapan')?->value,
+            'curah'      => $activeReadings->get('curah_hujan')?->value,
             'raining'    => $isRaining,
             'day'        => \Carbon\Carbon::now()->translatedFormat('l'),
             'condition'  => $isRaining ? 'Hujan' : 'Cerah berawan',
@@ -119,6 +119,41 @@ class Dashboard extends Component
                 ? \Carbon\Carbon::parse($activeDevice->last_synced_at)->translatedFormat('D, d M H:i')
                 : null,
         ];
+
+        // Ringkasan 7 hari terakhir (agregat historis suhu + hari hujan) untuk stasiun aktif
+        $since = \Carbon\Carbon::now()->subDays(6)->startOfDay();
+
+        $dailyTemp = Sensor::query()
+            ->where('device_id', $activeDevice?->id)
+            ->where('type', 'suhu')
+            ->where('recorded_at', '>=', $since)
+            ->selectRaw('DATE(recorded_at) as d, AVG(value) as av')
+            ->groupBy('d')
+            ->get()
+            ->keyBy('d');
+
+        $rainyDays = Sensor::query()
+            ->where('device_id', $activeDevice?->id)
+            ->where('type', 'hujan')
+            ->where('value', 1)
+            ->where('recorded_at', '>=', $since)
+            ->selectRaw('DATE(recorded_at) as d')
+            ->groupBy('d')
+            ->pluck('d')
+            ->flip();
+
+        $daily = collect(range(6, 0))->map(function ($i) use ($dailyTemp, $rainyDays) {
+            $date = \Carbon\Carbon::now()->subDays($i);
+            $key  = $date->format('Y-m-d');
+            $row  = $dailyTemp[$key] ?? null;
+
+            return [
+                'day'     => $date->translatedFormat('D'),
+                'isToday' => $i === 0,
+                'avg'     => $row ? round((float) $row->av) : null,
+                'rain'    => isset($rainyDays[$key]),
+            ];
+        });
 
         return view('livewire.dashboard', [
             'total'         => $total,
@@ -131,6 +166,7 @@ class Dashboard extends Component
             'chart'         => $chart,
             'activeDevice'  => $activeDevice,
             'summary'       => $summary,
+            'daily'         => $daily,
         ]);
     }
 }
