@@ -19,6 +19,11 @@ document.addEventListener("alpine:init", () => {
             };
         },
 
+        // Satuan pendek untuk label di atas titik (°C → °, sisanya tanpa spasi)
+        shortUnit(unit) {
+            return unit === "°C" ? "°" : "";
+        },
+
         buildOptions(data) {
             const c = this.themeColors();
             return {
@@ -48,21 +53,33 @@ document.addEventListener("alpine:init", () => {
                     labels: { style: { colors: c.label, fontSize: "11px" } },
                     axisBorder: { show: false },
                     axisTicks: { show: false },
+                    tooltip: { enabled: false },
                 },
-                yaxis: {
-                    labels: {
-                        style: { colors: c.label, fontSize: "11px" },
-                        formatter: (val) => `${val} ${data.unit}`,
-                    },
-                },
+                // Sembunyikan y-axis — angka tampil langsung di atas titik (ala Google)
+                yaxis: { show: false },
                 legend: { show: false },
-                grid: { borderColor: c.grid, strokeDashArray: 4 },
+                // Grid minimal: tanpa garis, hanya beri ruang untuk label di atas
+                grid: {
+                    show: false,
+                    padding: { top: 24, right: 8, left: 8, bottom: 0 },
+                },
                 tooltip: {
                     theme: c.tooltip,
                     y: { formatter: (val) => `${val} ${data.unit}` },
                 },
-                dataLabels: { enabled: false },
-                markers: { size: 0, hover: { size: 4 } },
+                dataLabels: {
+                    enabled: true,
+                    formatter: (val) => `${val}${this.shortUnit(data.unit)}`,
+                    offsetY: -8,
+                    background: { enabled: false },
+                    dropShadow: { enabled: false },
+                    style: {
+                        fontSize: "11px",
+                        fontWeight: 600,
+                        colors: [c.label],
+                    },
+                },
+                markers: { size: 3, strokeWidth: 0, hover: { size: 5 } },
             };
         },
 
@@ -76,8 +93,7 @@ document.addEventListener("alpine:init", () => {
                 this.chart.updateOptions({
                     theme: { mode: this.isDark() ? "dark" : "light" },
                     xaxis: { labels: { style: { colors: c.label } } },
-                    yaxis: { labels: { style: { colors: c.label } } },
-                    grid: { borderColor: c.grid },
+                    dataLabels: { style: { colors: [c.label] } },
                     tooltip: { theme: c.tooltip },
                 }, false, false);
             });
@@ -91,10 +107,8 @@ document.addEventListener("alpine:init", () => {
                 this.chart.updateOptions({
                     colors: [chart.color],
                     xaxis: { categories: chart.categories },
-                    yaxis: {
-                        labels: {
-                            formatter: (val) => `${val} ${chart.unit}`,
-                        },
+                    dataLabels: {
+                        formatter: (val) => `${val}${this.shortUnit(chart.unit)}`,
                     },
                     tooltip: {
                         y: { formatter: (val) => `${val} ${chart.unit}` },

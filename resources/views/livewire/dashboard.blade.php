@@ -53,57 +53,74 @@
         </div>
     </div>
 
-    {{-- Grafik tren per-metrik --}}
+    {{-- Grafik tren per-metrik — gaya widget cuaca --}}
     <div class="rounded-xl border border-border bg-card p-5">
-        <div class="mb-4 flex items-center justify-between gap-4">
-            <div>
-                <h2 class="text-sm font-semibold text-foreground">Tren {{ $metrics[$selectedMetric]['label'] }} — {{ $activeDevice?->device_name ?? $activeDevice?->device_id ?? '-' }}</h2>
-                <p class="text-xs text-muted-foreground">12 data terakhir</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span class="relative flex h-2 w-2">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                    </span>
-                    Live
-                </span>
 
-                {{-- Dropdown pilih metrik --}}
-                <div class="relative" x-data="{ open: false }">
-                    <button
-                        @click="open = !open"
-                        class="flex items-center gap-2 rounded-lg border border-border bg-input px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-border/60"
-                    >
-                        {{ $metrics[$selectedMetric]['label'] }}
-                        <x-heroicon-m-chevron-down class="h-3.5 w-3.5 text-muted-foreground" />
-                    </button>
-                    <div
-                        x-show="open"
-                        @click.outside="open = false"
-                        x-transition
-                        class="absolute right-0 z-10 mt-1 w-44 rounded-lg border border-border bg-card shadow-lg py-1"
-                    >
-                        @foreach ($metrics as $key => $meta)
-                            <button
-                                wire:click="$set('selectedMetric', '{{ $key }}')"
-                                @click="open = false"
-                                class="flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-input
-                                    {{ $selectedMetric === $key ? 'font-semibold text-foreground' : 'text-muted-foreground' }}"
-                            >
-                                <span class="h-2 w-2 rounded-full shrink-0" style="background:{{ $meta['color'] }}"></span>
-                                {{ $meta['label'] }}
-                                @if ($selectedMetric === $key)
-                                    <x-heroicon-m-check class="ml-auto h-3.5 w-3.5" />
-                                @endif
-                            </button>
-                        @endforeach
-                    </div>
+        {{-- Header hero: kondisi terkini --}}
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="flex items-center gap-4">
+                {{-- Ikon kondisi --}}
+                <div class="text-primary">
+                    @if ($summary['raining'])
+                        <x-heroicon-o-cloud class="h-12 w-12 text-sky-500" />
+                    @else
+                        <x-heroicon-o-sun class="h-12 w-12 text-amber-500" />
+                    @endif
                 </div>
+
+                {{-- Nilai besar + satuan --}}
+                <div class="flex items-start">
+                    <span class="text-5xl font-semibold leading-none text-foreground">
+                        {{ $summary['value'] ?? '—' }}
+                    </span>
+                    <span class="ml-1 mt-1 text-sm font-medium text-muted-foreground">{{ $summary['unit'] }}</span>
+                </div>
+
+                {{-- Mini stats --}}
+                <div class="hidden space-y-0.5 border-l border-border pl-4 text-xs text-muted-foreground sm:block">
+                    <p>Curah hujan: <span class="text-foreground">{{ $summary['curah'] ?? '—' }} mm</span></p>
+                    <p>Kelembapan: <span class="text-foreground">{{ $summary['kelembapan'] ?? '—' }}%</span></p>
+                    <p>Suhu: <span class="text-foreground">{{ $summary['suhu'] ?? '—' }}°C</span></p>
+                </div>
+            </div>
+
+            {{-- Nama stasiun + hari + kondisi --}}
+            <div class="text-left sm:text-right">
+                <h2 class="text-base font-semibold text-foreground">{{ $activeDevice?->device_name ?? $activeDevice?->device_id ?? '-' }}</h2>
+                <p class="text-sm text-muted-foreground">{{ $summary['day'] }}</p>
+                <p class="text-sm text-muted-foreground">{{ $summary['condition'] }}</p>
             </div>
         </div>
 
-        <div wire:ignore x-data="weatherChart(@js($chart))" x-init="init()">
+        {{-- Tab metrik (ala Suhu | Presipitasi | Angin) --}}
+        <div class="mt-4 flex items-center gap-6 border-b border-border">
+            @foreach ($metrics as $key => $meta)
+                <button
+                    wire:click="$set('selectedMetric', '{{ $key }}')"
+                    class="relative -mb-px pb-2.5 text-sm font-medium transition
+                        {{ $selectedMetric === $key
+                            ? 'text-foreground'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }}"
+                >
+                    {{ $meta['label'] }}
+                    @if ($selectedMetric === $key)
+                        <span class="absolute inset-x-0 -bottom-px h-0.5 rounded-full" style="background:{{ $meta['color'] }}"></span>
+                    @endif
+                </button>
+            @endforeach
+
+            <span class="ml-auto flex items-center gap-1.5 pb-2.5 text-xs text-muted-foreground">
+                <span class="relative flex h-2 w-2">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                Live · 12 data terakhir
+            </span>
+        </div>
+
+        {{-- Chart --}}
+        <div class="mt-2" wire:ignore x-data="weatherChart(@js($chart))" x-init="init()">
             <div x-ref="chart"></div>
         </div>
     </div>

@@ -100,6 +100,26 @@ class Dashboard extends Component
 
         $this->dispatch('chart-updated', chart: $chart);
 
+        // Ringkasan kondisi terkini untuk header ala widget cuaca
+        $activeReadings = $latestSensors[$activeDevice?->id] ?? collect();
+        $currentValue   = $activeReadings[$this->selectedMetric]?->value;
+        $isRaining      = isset($activeReadings['hujan']) && (int) $activeReadings['hujan']->value === 1;
+
+        $summary = [
+            'value'      => $currentValue !== null ? round((float) $currentValue, 1) : null,
+            'unit'       => $meta['unit'],
+            'label'      => $meta['label'],
+            'suhu'       => $activeReadings['suhu']?->value,
+            'kelembapan' => $activeReadings['kelembapan']?->value,
+            'curah'      => $activeReadings['curah_hujan']?->value,
+            'raining'    => $isRaining,
+            'day'        => \Carbon\Carbon::now()->translatedFormat('l'),
+            'condition'  => $isRaining ? 'Hujan' : 'Cerah berawan',
+            'updated'    => $activeDevice?->last_synced_at
+                ? \Carbon\Carbon::parse($activeDevice->last_synced_at)->translatedFormat('D, d M H:i')
+                : null,
+        ];
+
         return view('livewire.dashboard', [
             'total'         => $total,
             'online'        => $online,
@@ -110,6 +130,7 @@ class Dashboard extends Component
             'latestSensors' => $latestSensors,
             'chart'         => $chart,
             'activeDevice'  => $activeDevice,
+            'summary'       => $summary,
         ]);
     }
 }
