@@ -125,9 +125,9 @@
         </div>
 
         {{-- Ringkasan 7 hari terakhir (agregat historis suhu) --}}
-        <div class="mt-2 grid grid-cols-4 gap-2 border-t border-border pt-4 sm:grid-cols-7">
+        <div class="mt-2 flex gap-2 overflow-x-auto border-t border-border pt-4">
             @foreach ($daily as $d)
-                <div class="flex flex-col items-center gap-1.5 rounded-lg py-2 transition
+                <div class="flex min-w-[56px] flex-1 flex-col items-center gap-1.5 rounded-lg py-2 transition
                     {{ $d['isToday'] ? 'bg-input' : 'hover:bg-input/50' }}">
                     <span class="text-xs font-medium {{ $d['isToday'] ? 'text-foreground' : 'text-muted-foreground' }}">
                         {{ $d['day'] }}
