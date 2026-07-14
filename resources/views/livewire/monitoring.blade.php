@@ -1,9 +1,9 @@
-<div wire:poll.15s class="flex flex-col gap-4 h-[calc(100vh-4rem-3rem)]">
+<div wire:poll.15s x-data="{ panelOpen: false }" class="flex flex-col gap-4 h-[calc(100vh-4rem-3rem)]">
 
     {{-- Layout split --}}
     <div class="flex gap-4 flex-1 min-h-0">
 
-        {{-- ── PETA (kiri 60%) ── --}}
+        {{-- ── PETA (full saat panel disembunyikan) ── --}}
         <div class="relative flex-[3] rounded-xl border border-border overflow-hidden">
 
             {{-- Badge Windy --}}
@@ -19,6 +19,18 @@
                 </div>
             @endif
 
+            {{-- Toggle panel stasiun --}}
+            <button
+                @click="panelOpen = !panelOpen"
+                type="button"
+                class="absolute top-3 right-3 z-[1000] flex items-center gap-1.5 rounded-lg bg-card/90 backdrop-blur border border-border px-2.5 py-1.5 text-xs font-medium text-foreground shadow-sm transition hover:bg-input"
+                :title="panelOpen ? 'Sembunyikan panel stasiun' : 'Tampilkan panel stasiun'"
+            >
+                <x-heroicon-o-bars-3 class="h-4 w-4" x-show="!panelOpen" x-cloak />
+                <x-heroicon-o-x-mark class="h-4 w-4" x-show="panelOpen" x-cloak />
+                <span x-text="panelOpen ? 'Sembunyikan Panel' : 'Tampilkan Panel'"></span>
+            </button>
+
             <div
                 wire:ignore
                 x-data="monitoringMap(@js($devices), @js($activeDevice), @js($windyKey))"
@@ -32,8 +44,18 @@
             </div>
         </div>
 
-        {{-- ── PANEL KANAN (40%) ── --}}
-        <div class="flex-[2] flex flex-col gap-3 min-h-0 overflow-y-auto">
+        {{-- ── PANEL KANAN (40%, toggle) ── --}}
+        <div
+            x-show="panelOpen"
+            x-cloak
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-x-4"
+            x-transition:enter-end="opacity-100 translate-x-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-x-0"
+            x-transition:leave-end="opacity-0 translate-x-4"
+            class="flex-[2] flex flex-col gap-3 min-h-0 overflow-y-auto"
+        >
 
             {{-- List stasiun --}}
             <div class="rounded-xl border border-border bg-card overflow-hidden shrink-0">
